@@ -16,11 +16,9 @@ const MemberSchema = new Schema({
     name: {type:String},
     phone: {type:String},
     username:{type:String},
-    location_latitude:{type:Number},
-    location_longitude:{type:Number},
-    lang:{Type:String},
-    region:{type:String},
-    address:{type:String}
+    location_latitude:{type:String},
+    location_longitude:{type:String},
+    lang:{type:String}
 }, { timestamps: { createdAt: 'createDate', updatedAt: 'updatedDate' } })
 
 const SendMessageSchema = new Schema({
@@ -30,25 +28,22 @@ const SendMessageSchema = new Schema({
 }, { timestamps: { createdAt: 'createDate', updatedAt: 'updatedDate' } })
 
 const OrderSchema = new Schema({
-    orderId:{type:String},
     userId:{type:String},
     memberId:{type:String},
     categoryId:{type:String},
-    subcategoryId:{type:String},
-    categoryName:{type:String},
-    subcategoryName:{type:String},
     productId:{type:String},
-    productorservice:{type:String},
     qty:{type:Number},
-    cost:{type:Number},
+    price:{type:Number},
     newprice:{type:Number},
     messageId:{type:String},
     status:{type:String},
-    ratingstatus:{type:String}
+    ratingstatus:{type:String},
+    userName:{type:String},
+    categoryName:{type:String},
+    productName:{type:String}
 }, { timestamps: { createdAt: 'createDate', updatedAt: 'updatedDate' } })
 
 const CategorySchema =  new Schema({
-    categoryId:{type:String},
     titleUz:{type:String},
     titleRu:{type:String}
 }, { timestamps: { createdAt: 'createDate', updatedAt: 'updatedDate' } })
@@ -61,7 +56,6 @@ const SubCategorySchema = new Schema({
 }, { timestamps: { createdAt: 'createDate', updatedAt: 'updatedDate' } })
 
 const ProductSchema = new Schema({
-    productId:{type:String},
     userId:{type:String},
     titleUz:{type:String},
     titleRu:{type:String},
@@ -72,17 +66,13 @@ const ProductSchema = new Schema({
     img:{type:String},
     productorservice:{type:String},
     сurrency:{type:String},
-    categoryName:{type:String},
-    subcategoryName:{type:String},
     item:{type:String},
-    rating:{type:Number},
-    ratingOne:{type:Number},
-    ratingTwo:{type:Number},
-    ratingThree:{type:Number},
-    ratingFour:{type:Number},
-    ratingFive:{type:Number},
-    categoryId:{type:String},
-    subcategoryId:{type:String}
+    ratingOne:{type:String},
+    ratingTwo:{type:String},
+    ratingThree:{type:String},
+    ratingFour:{type:String},
+    ratingFive:{type:String},
+    categoryId:{type:String}
 }, { timestamps: { createdAt: 'createDate', updatedAt: 'updatedDate' } })
 
 const ServiceSchema = new Schema({
@@ -107,7 +97,8 @@ const LanguageSchema = new Schema({
 }, { timestamps: { createdAt: 'createDate', updatedAt: 'updatedDate' } })
 
 const AppSchema = new Schema({
-    percent:{type:String}
+    percent:{type:String},
+    phone:{type:String}
 }, { timestamps: { createdAt: 'createDate', updatedAt: 'updatedDate' } })
 
 module.exports.user        = model('User', UserSchema)

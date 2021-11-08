@@ -1,13 +1,13 @@
 const uuid = require('uuid')
 const path = require('path');
 const Product  = require("../model/model");
-const Subcategory  = require("../model/model");
+const Category  = require("../model/model");
 const Appsetting  = require("../model/model")
 const ApiError = require('../error/ApiError');
 
 class ProductController{
     async addproduct(req,res,next){
-            const {titleUz, titleRu, price, сurrency, item, productorservice, categoryId, subcategoryId, userId, descriptionUz, descriptionRu} = req.body
+            const {titleUz, titleRu, price, categoryId, userId, descriptionUz, descriptionRu} = req.body
             if(!req.files){
                 return next(ApiError.badRequest('Rasm tanlanmadi'))
             }else if(titleUz === ''){
@@ -16,16 +16,8 @@ class ProductController{
                 return next(ApiError.badRequest('Ruscha nomi yozilmagan'))
             }else if(price === ''){
                 return next(ApiError.badRequest('Narhi nberilmagan'))
-            }else if(сurrency === ''){
-                return next(ApiError.badRequest('Narhi nberilmagan'))
-            }else if(item === ''){
-                return next(ApiError.badRequest('Narhi nberilmagan'))
-            }else if(productorservice === ''){
-                return next(ApiError.badRequest('Narhi nberilmagan'))
             }else if(categoryId === ''){
                 return next(ApiError.badRequest('Что то пустое categoryId'))
-            }else if(subcategoryId === ''){
-                return next(ApiError.badRequest('Что то пустое subcategoryId'))
             }else if(descriptionUz === ''){
                 return next(ApiError.badRequest('Uzbekcha ta`rigi yozilmagan'))
             }else if(userId === ''){
@@ -36,18 +28,10 @@ class ProductController{
             const {img} = req.files
             let fileName = uuid.v4() + ".jpg"
             img.mv(path.resolve(__dirname, '..', 'static', fileName))
-            let id = '61668f225971c93c410bf10b'
-            const getsetting = await Appsetting.appsetting.findById(id)
+            const APPID = process.env.SETTING_ID
+            const getsetting = await Appsetting.appsetting.findById(APPID)
             let newprice = Number(((price * getsetting.percent)/100)) + Number(price)
-            const findlasid = await Product.product.findOne().sort({ _id: -1 })
-            let newid
-            if(findlasid == null || findlasid.productId == '' || !findlasid.productId){
-                newid = 1
-            }else if(findlasid.productId > 0){
-                newid = Number(findlasid.productId) + Number(1)
-            }
-            const product = await Product.product.create({productId: newid,titleUz,titleRu, price, newprice: newprice, сurrency, item, productorservice, categoryId, subcategoryId, userId, img: fileName,  descriptionUz, descriptionRu});
-            // console.log(product)
+            const product = await Product.product.create({userId, titleUz, titleRu, price, newprice: newprice, categoryId, img: fileName,  descriptionUz, descriptionRu, ratingOne: '', ratingTwo: '', ratingThree: '', ratingFour: '', ratingFive: ''});
             return res.json(product)
         }
     }
@@ -59,16 +43,26 @@ class ProductController{
     }
 
     async getallproducts(req,res,next){
-        let {categoryId, subcategoryId, productorservice} = req.query
+        let {categoryId, user} = req.query
+        console.log(user)
         let products
-        if(!categoryId && !subcategoryId && !productorservice){
+        if(!categoryId && !user){
             products = await Product.product.find().sort({ _id: -1 })
-        }else if(categoryId && !subcategoryId && !productorservice ){
+        }else if(categoryId && !user ){
             products = await Product.product.find({categoryId: categoryId}).sort({ _id: -1 })
-        }else if(categoryId && subcategoryId && !productorservice ){
-            products = await Product.product.find({categoryId: categoryId, subcategoryId: subcategoryId}).sort({ _id: -1 })
-        }else if(categoryId && subcategoryId && productorservice ){
-            products = await Product.product.find({categoryId: categoryId, subcategoryId: subcategoryId, productorservice: productorservice}).sort({ _id: -1 })
+        }else if(!categoryId  && user ){
+            products = await Product.product.find({userId: user}).sort({ _id: -1 })
+        }else if(categoryId && user ){
+            products = await Product.product.find({categoryId: categoryId, userId: user}).sort({ _id: -1 })
+        }
+        if(products.length>0){
+            for(let j=0;j<products.length; j++){
+                const getcategory = await Category.category.findById(products[j].categoryId)
+                let cnama = getcategory.titleUz + '-' + getcategory.titleRu
+                products[j].categoryId = cnama
+            }
+        }else{
+            console.log('net')
         }
         return res.json(products)
     }
@@ -84,9 +78,19 @@ class ProductController{
     }
 
     async updateproduct(req,res,next){
-        const {id, titleUz, titleRu, price, categoryId, subcategoryId, descriptionUz, descriptionRu, сurrency, productorservice, item} = req.body
-        const updateproduct = await Product.product.findByIdAndUpdate(id, {titleUz, titleRu, price, categoryId, subcategoryId, descriptionUz, descriptionRu, сurrency, productorservice, item},{new:true})
-        return res.json(updateproduct)
+        const {id, titleUz, titleRu, price, categoryId, subcategoryId, descriptionUz, descriptionRu, сurrency, productorservice, file} = req.body
+        if(!req.files){
+            const getproduct = await Product.product.findById(id)
+            const updateproduct = await Product.product.findByIdAndUpdate(id, {img: getproduct.img,titleUz, titleRu, price, categoryId, subcategoryId, descriptionUz, descriptionRu, сurrency, productorservice, file},{new:true})
+            return res.json(updateproduct)
+        }else{
+            const {img} = req.files
+            let fileName = uuid.v4() + ".jpg"
+            img.mv(path.resolve(__dirname, '..', 'static', fileName))
+            const updateproduct = await Product.product.findByIdAndUpdate(id, {img: fileName,titleUz, titleRu, price, categoryId, subcategoryId, descriptionUz, descriptionRu, сurrency, productorservice, file},{new:true})
+            return res.json(updateproduct)
+        }
+      
     }
 
     async deleteproduct(req,res,next){

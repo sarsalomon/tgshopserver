@@ -15,14 +15,7 @@ class CategoryController{
         }else if(rutitlefind){
             return next(ApiError.badRequest('Exits ru title'))
         }else{
-            const findlasid = await Category.category.findOne().sort({ _id: -1 })
-            let newid
-            if(findlasid == null){
-                newid = 1
-            }else if(findlasid.categoryId > 0){
-                newid = Number(findlasid.categoryId) + Number(1)
-            }
-            const category = await Category.category.create({categoryId: newid,titleUz, titleRu})
+            const category = await Category.category.create({titleUz, titleRu})
             return res.json(category)
         }
     }
