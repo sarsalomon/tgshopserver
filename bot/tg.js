@@ -469,8 +469,6 @@ async function addOrder(userId, queryId, productId, messageId, chatId){
         const findproduct = await Product.product.findById(productId)
         const findcategory = await Category.category.findById(findproduct.categoryId)
         const finduser = await User.user.findById(findproduct.userId)
-        console.log(findcategory)
-        console.log(finduser)
         const order = await Order.order.create({
             userId: findproduct.userId,
             memberId: userId,
@@ -526,8 +524,22 @@ async function deleteOrder(queryId, productId, messageId, chatId){
 }
 
 async  function ratingServiceSendMessage(productId, chatId, orderId){
-    text = `Working`
-    img = 'https://hsto.org/r/w1560/webt/ql/c9/_t/qlc9_t6jziecxi7nnhgasn_rmlo.png'
+    const product = await Product.product.findById(productId)
+    let text
+    if(userlang == 'uz'){
+        if(avgr === 0){
+            text = `Nomi: ${product.titleUz}\nMa'lumot: ${product.descriptionUz}\nBaho: hali baho olmagan\nNarhi: ${product.newprice}\n`
+        }else if(avgr >0){
+            text = `Nomi: ${product.titleUz}\nMa'lumot: ${product.descriptionUz}\nBaho: ${avgr}⭐️\nNarhi: ${product.newprice}\n`
+        }
+        }else if(userlang == 'ru'){
+        if(avgr === 0){
+            text = `Имя: ${product.titleRu}\nОписание: ${product.descriptionRu}\nОценка: ещё не получил отзывы\nЦена: ${product.newprice}\n`
+        }else if(avgr >0){
+            text = `Имя: ${product.titleRu}\nОписание: ${product.descriptionRu}\nОценка: ${avgr}⭐️\nЦена: ${product.newprice}\n`
+        }
+    }
+    img = BASEURL + product.product
     bot.sendPhoto(chatId, img, {
         caption: text,
         reply_markup:{
@@ -653,7 +665,7 @@ async function sendProducts(chatId,selectcategoryid,message){
                 text = `Имя: ${product.titleRu}\nОписание: ${product.descriptionRu}\nОценка: ${avgr}⭐️\nЦена: ${product.newprice}\n`
             }
             }
-            img = 'https://hsto.org/r/w1560/webt/ql/c9/_t/qlc9_t6jziecxi7nnhgasn_rmlo.png'
+            img = BASEURL + product.img
                 bot.sendPhoto(chatId, img, {
                     caption: text,
                     reply_markup:{
