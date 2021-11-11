@@ -1085,4 +1085,5 @@ async function deleteallmessage(chatId){
     const deletemessage = await Smmember.smmember.deleteMany({chatId:chatId}) 
     console.log(deletemessage)
 }
+
 module.exports.bot = bot;

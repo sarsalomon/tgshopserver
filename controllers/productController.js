@@ -44,7 +44,6 @@ class ProductController{
 
     async getallproducts(req,res,next){
         let {categoryId, user} = req.query
-        console.log(user)
         let products
         if(!categoryId && !user){
             products = await Product.product.find().sort({ _id: -1 })
@@ -62,7 +61,7 @@ class ProductController{
                 products[j].categoryId = cnama
             }
         }else{
-            console.log('net')
+
         }
         return res.json(products)
     }

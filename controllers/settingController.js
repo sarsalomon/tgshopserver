@@ -8,7 +8,7 @@ class SettingController{
         if(!percent){
             return next(ApiError.badRequest('Foiz berilmagan'))
         }
-        const setting = await Appsetting.appsetting.findByIdAndUpdate(APPID, {percent,phone},{new:true})
+        const setting = await Appsetting.appsetting.findByIdAndUpdate(APPID, {percent, phone},{new:true})
         return res.json(setting)
     }
 

@@ -11,5 +11,6 @@ router.post('/adduser',userController.adduser)
 router.get('/',userController.getallusers)
 router.post('/deleteuser',userController.deleteuser)
 router.get('/getuser/:id',userController.getuser)
+router.post('/updateuser',userController.updateuser)
 
 module.exports = router

@@ -56,7 +56,6 @@ class UserController {
     
     async adduser(req,res,next){
         const {login, password, categoryId, fish, phone, role} = req.body
-        console.log(req.body)
         const user = await User.user.create({login, password, role, fish, categoryId, phone});
         return res.json(user)
     }
@@ -68,19 +67,6 @@ class UserController {
     }
     
     async getallusers(req,res,next){
-        // let {categoryId, subcategoryId} = req.query
-        // console.log(req.query)
-        // let users
-        // if(!categoryId && !subcategoryId){
-        //     users = await User.user.find().sort({ _id: -1 })
-        // }else if(categoryId && !subcategoryId){
-        //     users = await User.user.find({categoryId: categoryId}).sort({ _id: -1 })
-        // }else if(!categoryId && subcategoryId){
-        //     users = await User.user.find({subcategoryId: subcategoryId}).sort({ _id: -1 })
-        // }else if(categoryId && subcategoryId){
-        //     users = await User.user.find({categoryId: categoryId, subcategoryId: subcategoryId}).sort({ _id: -1 })
-        // }
-        // return res.json(users)
         let {categoryId} = req.query
         let users
         if(!categoryId){
@@ -98,8 +84,22 @@ class UserController {
     }
 
     async updateuser(req,res,next){
-        const {id, titleUz, titleRu, price, categoryId, subcategoryId, userId, descriptionUz,descriptionRu} = req.body
-        const updateuser = await User.user.findByIdAndUpdate(id, {titleUz, titleRu, price, categoryId, subcategoryId, userId, descriptionUz,descriptionRu},{new:true})
+        const {id, fish, role, categoryId} = req.body
+        let oldrole
+        let oldcategoryId
+        if(role == ''){
+            const getuser = await User.user.findById(id)
+            oldrole = getuser.role
+        }else if(role != ''){
+            oldrole = role
+        }
+        if(categoryId == ''){
+            const getuser = await User.user.findById(id)
+            oldcategoryId = getuser.categoryId
+        }else if(categoryId != ''){
+            oldcategoryId = categoryId
+        }
+        const updateuser = await User.user.findByIdAndUpdate(id, {fish, role:oldrole, categoryId:oldcategoryId},{new:true})
         return res.json(updateuser)
     }
 

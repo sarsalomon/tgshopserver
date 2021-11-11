@@ -89,12 +89,7 @@ class CategoryController{
     }
 
     async deletecategory(req,res,next){
-        const {id} = req.body
-        const subcategory = await Subcategory.subcategory.find({categoryId: id}).sort({ _id: -1 })
-        console.log(`subC: `,subcategory)
-        for(let i=0;i < subcategory.length; i++){
-            const deletecategory = await Subcategory.subcategory.findByIdAndDelete(subcategory[i]._id)
-        }        
+        const {id} = req.body      
         const deletecategory = await Category.category.findByIdAndDelete(id)
         return res.json(deletecategory)
     }

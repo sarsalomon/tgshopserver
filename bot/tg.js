@@ -6,18 +6,20 @@ const Product     = require("../model/model");
 const Order       = require("../model/model");
 const User        = require("../model/model");
 const Category    = require("../model/model");
-const Smmember    = require("../model/model");
+const History     = require("../model/model");
 const Appsetting  = require("../model/model")
 const { resolve } = require('path/posix');
 
-let bookPages
 let selectcategorybool = false
 let selectcategoryid = ''
 let userlang = ''
 let currentLang
+
 async function getmemberlang(chatId,msg) {
     let langs
     languages = await Member.member.findOne({chatId: chatId})
+    if(languages){
+
     if(languages == null){
         langs = 'uz'
         userlang = langs
@@ -25,25 +27,22 @@ async function getmemberlang(chatId,msg) {
         langs = languages.lang
         userlang = langs
     }
+    msgworking(chatId,msg)
     if(langs == 'uz'){
-        return currentLang = {
-            "hello": 'лавная страница на "RU"',
+        currentLang = {
             "helloagain": 'Hush kelibsiz, sizni ko`rishimdan yana xursandman',
             "emptysector": 'Bu bo`limda hali hech narsa yo`q',
             "setting" : 'Sozlamalar',
-            "emptycard": 'Sizda hali hech narsa yoq ekan',
             "addphone":'Raqam kiritin',
             "sendphone": 'Raqam yuborish 📲',
             "sendlocation": 'Manzilni yuborish 📍',
             "ball" : 'ga baholandi',
-            "orders" : 'Buyurtmalar',
             "service" : 'Hizmatlar',
+            "delivery" : 'Yetkazib berish',
             "phoneupdate" : 'Raqamni yangilash',
             "updatelocation" : 'Manzilni yangilash',
             "updateaddress" : 'Manzil yangilandi',
-            "products" : 'Mahsulotlar',
-            "myOrder" : 'Mani buyurtmalarim',
-            "thanks" : 'fikringiz uchun Rahmat',
+            "thanks" : 'Fikr-mulohazangiz uchun rahmat',
             "back" :'Orqaga',
             "setLang" : 'Tilni tanlang',
             "updatePhone" : 'Telefon raqam yangilandi',
@@ -53,8 +52,10 @@ async function getmemberlang(chatId,msg) {
             "delete" : 'O`chirish',
             "deleted" : 'O`chirildi',
             "soon" : 'Tez orada',
-            "check" : "Tekshirib ko`rish",
-            "supportPhone" : "Issiq liniya"
+            "supportPhone" : "Issiq liniya",
+            "supportText" : "Qo`llab quvvatlash markazini raqami 📱",
+            "setCategory" : "Toifani tanglang",
+            "ordersuccess" : "Sizni buyurtmangiz bajarildi😊. Iltimos qilingan ishni bahalob bering⭐️"
         },
         kb = {
             lang:{
@@ -62,8 +63,8 @@ async function getmemberlang(chatId,msg) {
                 ru: 'Ru 🇷🇺'
             },
             home:{
-                services: `${currentLang.service} 🪚⛏`,        
-                orders: `${currentLang.orders} 🛒`,
+                services: `${currentLang.service} ⛏`,
+                deliveries: `${currentLang.delivery} 🚚📦`,
                 support: `${currentLang.supportPhone} ☎️`,
                 setting: `${currentLang.setting} ⚙️`
             },
@@ -72,22 +73,6 @@ async function getmemberlang(chatId,msg) {
             },
             location:{
                 locationUpdate: `${currentLang.updatelocation} 📍`
-            },
-            address:{
-                addressUpdate: `${currentLang.updateaddress} 🏠`
-            },
-            fullname:{
-                fullnameUpdate: `${currentLang.updatefullname} ✏️📄`
-            },
-            updatelang:{
-                langUpdate : 'Update lang'
-            },
-            order:{
-                myOrder: `${currentLang.myOrder} 🛍`
-            },
-            services:{
-                service: `${currentLang.service} 🪚⛏`,
-                products: `${currentLang.products}  🛍`
             },
             back:{
                 backButton: `${currentLang.back} ⬅️`,
@@ -99,7 +84,7 @@ async function getmemberlang(chatId,msg) {
                 [kb.lang.ru]
             ],
             home:[
-                [kb.services.service],
+                [kb.home.services,kb.home.deliveries],
                 [kb.home.setting,kb.home.support]
             ],
             setting:[
@@ -118,23 +103,19 @@ async function getmemberlang(chatId,msg) {
             ]
         }
     }else{
-        return currentLang = {
-            "hello": 'лавная страница на "RU"',
+        currentLang = {
             "helloagain": 'Добро пожаловать я рада видеть тебя снова',
             "emptysector": 'В этом разделе еще ничего нет',
             "setting" : 'Настройки',
-            "emptycard": 'У тебя еще ничего нет',
             "addphone": 'Введите номер',
             "sendphone": 'Отправить номер 📲',
             "sendlocation": 'Отправить локацию 📍',
             "ball" : 'Baholandi',
-            "orders" : 'Заказы',
             "service" : 'Услуги',
+            "delivery" : 'Доставка',
             "phoneupdate" : 'Изменить номер',
             "updatelocation" : 'Изменить локацию',
             "updateaddress" : 'Адрес обновлен',
-            "products" : 'Продукты',
-            "myOrder" : 'Мои заказы',
             "thanks" : 'Спасибо за отзыв',
             "back" :'Назад',
             "setLang" : 'Выберите язык',
@@ -145,8 +126,10 @@ async function getmemberlang(chatId,msg) {
             "delete" : 'Удалить',
             "deleted" : 'Удаленный',
             "soon" : "Скоро",
-            "check" : "Проверить",
-            "supportPhone" : "Горячий номер"
+            "supportPhone" : "Горячий номер",
+            "supportText" : "Номер центра поддержки 📱",
+            "setCategory" : "Выбрать категорию",
+            "ordersuccess" : "Ваш заказ выполнен😊. Пожалуйста оцените сделанную работу⭐️"
         },
         kb = {
             lang:{
@@ -154,8 +137,8 @@ async function getmemberlang(chatId,msg) {
                 ru: 'Ru 🇷🇺'
             },
             home:{
-                services: `${currentLang.service} 🪚⛏`,        
-                orders: `${currentLang.orders} 🛒`,
+                services: `${currentLang.service} ⛏`,
+                deliveries: `${currentLang.delivery} 🚚📦`,
                 support: `${currentLang.supportPhone} ☎️`,
                 setting: `${currentLang.setting} ⚙️`
             },
@@ -164,22 +147,6 @@ async function getmemberlang(chatId,msg) {
             },
             location:{
                 locationUpdate: `${currentLang.updatelocation} 📍`
-            },
-            address:{
-                addressUpdate: `${currentLang.updateaddress} 🏠`
-            },
-            fullname:{
-                fullnameUpdate: `${currentLang.updatefullname} ✏️📄`
-            },
-            updatelang:{
-                langUpdate : 'Update lang'
-            },
-            order:{
-                myOrder: `${currentLang.myOrder} 🛍`
-            },
-            services:{
-                service: `${currentLang.service} 🪚⛏`,
-                products: `${currentLang.products}  🛍`
             },
             back:{
                 backButton: `${currentLang.back} ⬅️`,
@@ -191,7 +158,7 @@ async function getmemberlang(chatId,msg) {
                 [kb.lang.ru]
             ],
             home:[
-                [kb.services.service],
+                [kb.home.services,kb.home.deliveries],
                 [kb.home.setting,kb.home.support]
             ],
             setting:[
@@ -209,9 +176,49 @@ async function getmemberlang(chatId,msg) {
                 [kb.back.backButton]
             ]
         }
-    }
-};
+    } 
 
+}
+await Promise.resolve();
+};
+async function msgworking(chatId,msg) {
+    if(currentLang == undefined){
+        getmemberlang(chatId,msg)
+    }else{
+        console.log(msg.text)
+        if(msg.text == 'Uz 🇺🇿'){
+            updateInformation(chatId,'uz')
+        }else if(msg.text == 'Ru 🇷🇺'){
+            updateInformation(chatId,'ru')
+        }else if(msg.text == `${currentLang.setting} ⚙️`){
+            bot.sendMessage(chatId, `${currentLang.setting}`,{
+                reply_markup: {
+                    keyboard: keyboard.setting
+                }
+            });
+        }else if(msg.text == `${currentLang.supportPhone} ☎️`){
+            sendContact(chatId)
+        }else if(msg.text == `${currentLang.service} ⛏`){
+            selectCategory(chatId)
+        }else if(msg.text == `${currentLang.delivery} 🚚📦`){
+            selectCategories(chatId)
+        }else if(msg.text == `${currentLang.back} ⬅️`){
+            selectcategorybool=false
+            bot.sendMessage(chatId, currentLang.back,{
+                reply_markup:{
+                    keyboard: keyboard.home
+                }
+            })
+        }else if(msg.contact){
+            updateInformation(chatId,'updatephone',msg) 
+        }else if(msg.location){
+            updateInformation(chatId,'updatelocation',msg) 
+        }
+        if(selectcategorybool){
+            getidc(chatId,msg.text,msg)
+        }
+    }
+}
 const TOKEN = process.env.BOT_TOKEN
 const BASEURL = process.env.TELEGRAM_APP_API_URL
 const APPID = process.env.SETTING_ID
@@ -220,7 +227,6 @@ const ACTION_TYPE = {
     ADD_CART: 'ad',
     DELETE_ITEM: 'di',
     SUCCESS_ORDER: 'so',
-    CHECK_STATUS: 'chs',
     RATING_ONE: 'ron',
     RATING_TWO: 'rtw',
     RATING_THREE: 'rtj',
@@ -243,52 +249,13 @@ helper.logStarted()
 bot.onText(/workingbotnow/, (msg) => {
     bot.sendMessage(helper.getChatId(msg), 'of cource');
 });
-
+// bot.on("polling_error", (err) => console.log(err));
 bot.on('message', msg=>{
-        const text = msg.text;
-        const chatId = helper.getChatId(msg)
+        const text = msg;
+        const chatId = msg.chat.id
         getmemberlang(chatId,msg)
-        if (text === '/start'){
+        if (msg.text == '/start'){
             registrationuser(chatId,msg)
-        }
-        if(msg.contact){
-            updateInformation(chatId,'updatephone',msg) 
-            checkregistrationuser(chatId,msg)
-        }
-        if(msg.location){
-            updateInformation(chatId,'updatelocation',msg) 
-            checkregistrationuser(chatId,msg)
-        }
-        switch (msg.text){
-            case kb.lang.uz:
-                updateInformation(chatId,'uz')
-            break
-            case kb.lang.ru:
-                updateInformation(chatId,'ru')
-            break
-            case kb.home.setting:
-                bot.sendMessage(chatId, `${currentLang.setting}`,{
-                    reply_markup: {
-                        keyboard: keyboard.setting
-                    }
-                });
-
-            break
-            case kb.home.support:
-                sendContact(chatId)
-            break
-            case kb.home.services:
-                selectCategory(chatId)
-                deleteallmessage(chatId)
-            break
-            case kb.back.backButton:
-                bot.sendMessage(chatId, `${currentLang.back}`,{
-                    reply_markup:{
-                        keyboard: keyboard.home
-                    }
-                })
-                selectcategorybool=false
-            break
         }
 })
 
@@ -300,7 +267,7 @@ bot.on('callback_query', query => {
     } catch(e){
         throw new Error('Data is not an object')
     } 
-    
+
     const { type } = data
     const productId  = data.productId
 
@@ -315,9 +282,6 @@ bot.on('callback_query', query => {
     if (type === ACTION_TYPE.SUCCESS_ORDER) {
         successOrder(userId, query.id, productId, messageId,chatId, data)
     }
-    if (type === ACTION_TYPE.CHECK_STATUS) {
-        checkOrder(userId, query.id, productId, messageId,chatId, data)
-    }
     if (type === ACTION_TYPE.RATING_ONE || type === ACTION_TYPE.RATING_TWO || type === ACTION_TYPE.RATING_THREE || type === ACTION_TYPE.RATING_FOUR || type === ACTION_TYPE.RATING_FIVE) {
         ratingServiceAdd(userId, query.id, productId, messageId, chatId, data)
     }
@@ -325,15 +289,18 @@ bot.on('callback_query', query => {
 })
 
 async function sendContact(chatId){
+    bot.sendMessage(chatId, currentLang.supportText);
     const getsetting = await Appsetting.appsetting.findById(APPID)
-    bot.sendContact(chatId, getsetting.phone, 'Imperia Service');
+    if(getsetting){
+        bot.sendContact(chatId, getsetting.phone, 'Imperia Service');
+    }
 }
 
 async function registrationuser(chatId,msg){
     const id = chatId
     const condidate = await Member.member.findOne({chatId: id})
     if(condidate){
-        if(condidate.phone !== '' && condidate.location_latitude !== '' && condidate.location_longitude !== ''){
+        if(condidate.phone !== ''){
             bot.sendMessage(chatId, `${currentLang.helloagain} ${msg.from.first_name + ' ' + msg.from.last_name}`,{
                 reply_markup: {
                     keyboard: keyboard.home
@@ -354,21 +321,6 @@ async function registrationuser(chatId,msg){
             }
         });
         return true
-    }
-}
-
-async function checkregistrationuser(chatId,msg){
-    const id = chatId
-    const condidate = await Member.member.findOne({chatId: id})
-    if(condidate){
-
-    }else{
-        if(msg.from.last_name == undefined){
-        
-        }else{
-            lastName = msg.from.last_name
-        }
-        const user = await Member.member.create({chatId,name: msg.from.first_name + ' ' + lastName,phone:'',username:msg.from.username,location_latitude:'',location_longitude:'',lang:''})
     }
 }
 
@@ -412,9 +364,9 @@ async function updateInformation(chatId,val,msg){
         if(condidate.phone === ''){
             const user = await Member.member.findOneAndUpdate({chatId: msg.contact.user_id}, {phone: msg.contact.phone_number})
             bot.sendMessage(chatId, `${msg.contact.phone_number} ${currentLang.added}`);
-            bot.sendMessage(chatId, `Davom etirish uchun yashash manzilni kiritin`,{
+            bot.sendMessage(chatId, currentLang.successreg,{
                 reply_markup: {
-                    keyboard: keyboard.orderaddresssuccess
+                    keyboard: keyboard.home
                 }
             });
         }else if(condidate.phone !== '') {
@@ -428,7 +380,7 @@ async function updateInformation(chatId,val,msg){
     }else if(val == 'updatelocation'){
         if(condidate.location_latitude === '' || condidate.location_longitude === ''){
             const user = await Member.member.findOneAndUpdate({chatId: msg.chat.id}, {location_latitude: msg.location.latitude,location_longitude: msg.location.longitude})
-            bot.sendMessage(msg.chat.id, currentLang.successreg,{
+            bot.sendMessage(msg.chat.id, currentLang.updateaddress,{
                 reply_markup: {
                     keyboard: keyboard.home
                 }
@@ -448,23 +400,25 @@ async function addOrder(userId, queryId, productId, messageId, chatId){
     const findorder = await Order.order.findOne({memberId:userId, productId:productId})
     if(findorder){
         const orderdelete = await Order.order.deleteOne({memberId:userId, productId:productId})
-        bot.editMessageReplyMarkup({
-            inline_keyboard: [
-                [
-                    {
-                        text: currentLang.add,
-                        callback_data: JSON.stringify({
-                            type: ACTION_TYPE.ADD_CART,
-                            productId: productId
-                        })
-                    }
+        if(orderdelete){
+            bot.editMessageReplyMarkup({
+                inline_keyboard: [
+                    [
+                        {
+                            text: currentLang.add,
+                            callback_data: JSON.stringify({
+                                type: ACTION_TYPE.ADD_CART,
+                                productId: productId
+                            })
+                        }
+                    ]
                 ]
-            ]
-            }, {
-                chat_id: chatId, 
-                message_id: messageId
-            });
-        bot.answerCallbackQuery({callback_query_id: queryId, text: `${currentLang.deleted} ${productId}`});
+                }, {
+                    chat_id: chatId, 
+                    message_id: messageId
+                });
+            bot.answerCallbackQuery({callback_query_id: queryId, text: `${currentLang.deleted} ${productId}`});
+        }
     }else{
         const findproduct = await Product.product.findById(productId)
         const findcategory = await Category.category.findById(findproduct.categoryId)
@@ -484,24 +438,25 @@ async function addOrder(userId, queryId, productId, messageId, chatId){
             categoryName: findcategory.titleUz + '-' + findcategory.titleRu,
             productName: findproduct.titleUz + '-' + findproduct.titleRu
         })
-    
-        bot.editMessageReplyMarkup({
-            inline_keyboard: [
-                [
-                    {
-                        text: currentLang.delete,
-                        callback_data: JSON.stringify({
-                            type: ACTION_TYPE.DELETE_ITEM,
-                            productId: productId
-                        })
-                    }
+        if(order){
+            bot.editMessageReplyMarkup({
+                inline_keyboard: [
+                    [
+                        {
+                            text: currentLang.delete,
+                            callback_data: JSON.stringify({
+                                type: ACTION_TYPE.DELETE_ITEM,
+                                productId: productId
+                            })
+                        }
+                    ]
                 ]
-            ]
-            }, {
-                chat_id: chatId, 
-                message_id: messageId
-            });
-        bot.answerCallbackQuery({callback_query_id: queryId, text: `${currentLang.added} ${productId}`});
+                }, {
+                    chat_id: chatId, 
+                    message_id: messageId
+                });
+            bot.answerCallbackQuery({callback_query_id: queryId, text: `${currentLang.added} ${productId}`});
+        }
     }
 }
 
@@ -523,23 +478,27 @@ async function deleteOrder(queryId, productId, messageId, chatId){
     bot.answerCallbackQuery({callback_query_id: queryId, text: `${currentLang.delete} ${productId}`});
 }
 
-async  function ratingServiceSendMessage(productId, chatId, orderId){
-    const product = await Product.product.findById(productId)
-    let text
-    if(userlang == 'uz'){
-        if(avgr === 0){
-            text = `Nomi: ${product.titleUz}\nMa'lumot: ${product.descriptionUz}\nBaho: hali baho olmagan\nNarhi: ${product.newprice}\n`
-        }else if(avgr >0){
-            text = `Nomi: ${product.titleUz}\nMa'lumot: ${product.descriptionUz}\nBaho: ${avgr}⭐️\nNarhi: ${product.newprice}\n`
-        }
-        }else if(userlang == 'ru'){
-        if(avgr === 0){
-            text = `Имя: ${product.titleRu}\nОписание: ${product.descriptionRu}\nОценка: ещё не получил отзывы\nЦена: ${product.newprice}\n`
-        }else if(avgr >0){
-            text = `Имя: ${product.titleRu}\nОписание: ${product.descriptionRu}\nОценка: ${avgr}⭐️\nЦена: ${product.newprice}\n`
+async  function ratingServiceSendMessage(productId, chatId, orderId, lang){
+    selectcategorybool=true
+    const getorder = await Order.order.findById(orderId)
+    if(getorder){
+        const getmember = await Member.member.findOne({chatId:getorder.memberId})
+        if(getmember){
+            const addhistory = await History.history.create({orderId:orderId,userId:getorder.userId,memberId:getorder.memberId,categoryId:getorder.categoryId,productId:getorder.productId,qty:getorder.qty,price:getorder.price,newprice:getorder.newprice,status:getorder.status,userName:getorder.userName,categoryName:getorder.categoryName,productName:getorder.productName,userPhone:getmember.phone})
+            if(addhistory){
+                const deleteorder = await Order.order.findByIdAndDelete(orderId)
+            }
         }
     }
-    img = BASEURL + 'api/' + product.product
+    const product = await Product.product.findById(productId)
+    let text
+    if(lang == 'uz'){
+        text = `${currentLang.ordersuccess}\nNomi: ${product.titleUz}\nMa'lumot: ${product.descriptionUz}`
+    }else if(lang == 'ru'){
+        text = `${currentLang.ordersuccess}\nИмя: ${product.titleRu}\nОписание: ${product.descriptionRu}`
+    }
+    // img = 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/1024px-Telegram_logo.svg.png'
+    img = BASEURL + 'api/' + product.img
     bot.sendPhoto(chatId, img, {
         caption: text,
         reply_markup:{
@@ -548,7 +507,6 @@ async  function ratingServiceSendMessage(productId, chatId, orderId){
                     text: "⭐️",
                     callback_data: JSON.stringify({
                         type: ACTION_TYPE.RATING_ONE,
-                        // productId: product._id,
                         orderId: orderId,
                         rating: 1
                     })
@@ -557,7 +515,6 @@ async  function ratingServiceSendMessage(productId, chatId, orderId){
                     text: "⭐️⭐️",
                     callback_data: JSON.stringify({
                         type: ACTION_TYPE.RATING_TWO,
-                        // productId: product._id,
                         orderId: orderId,
                         rating: 2
                     })
@@ -568,7 +525,6 @@ async  function ratingServiceSendMessage(productId, chatId, orderId){
                     text: "⭐️⭐️⭐️",
                     callback_data: JSON.stringify({
                         type: ACTION_TYPE.RATING_THREE,
-                        // productId: product._id,
                         orderId: orderId,
                         rating: 3
                     })
@@ -578,7 +534,6 @@ async  function ratingServiceSendMessage(productId, chatId, orderId){
                     text: "⭐️⭐️⭐️⭐️",
                     callback_data: JSON.stringify({
                         type: ACTION_TYPE.RATING_FOUR,
-                        // productId: product._id,
                         orderId: orderId,
                         rating: 4
                     })
@@ -589,7 +544,6 @@ async  function ratingServiceSendMessage(productId, chatId, orderId){
                     text: "⭐️⭐️⭐️⭐️⭐️",
                     callback_data: JSON.stringify({
                         type: ACTION_TYPE.RATING_FIVE,
-                        // productId: product._id,
                         orderId: orderId,
                         rating: 5
                     })
@@ -603,6 +557,7 @@ async  function ratingServiceSendMessage(productId, chatId, orderId){
 module.exports.ratingServiceSendMessage = ratingServiceSendMessage;
 
 async function ratingServiceAdd(userId, queryId, productId, messageId, chatId, data){
+    selectcategorybool=true
     let ratingtext
     if(data.rating == 1){
         ratingtext = '😓'
@@ -615,27 +570,80 @@ async function ratingServiceAdd(userId, queryId, productId, messageId, chatId, d
     }else if(data.rating == 5){
         ratingtext = '💥'
     }
-    let succesrating = bot.answerCallbackQuery({callback_query_id: queryId, text: `${productId} ${data.rating} ${ratingtext}`});
+    let succesrating = bot.answerCallbackQuery({callback_query_id: queryId, text: `${currentLang.thanks}`});
     if(succesrating){
-        const updateorder = await Order.order.findByIdAndUpdate(data.orderId, {ratingstatus: '1'},{new:true})
-        const getproduct = await Order.order.findById(data.orderId)
-        if(updateorder){
+        const getorder = await History.history.findOne({orderId:data.orderId})
+        if(getorder){
             let updateproduct
             if(data.rating == 1){
-                updateproduct = await Product.product.findByIdAndUpdate(getproduct.productId, {ratingOne: '1'},{new:true})
+                getproduct = await Product.product.findById(getorder.productId)
+                let countr
+                let currentr
+                if(getproduct.ratingOne == ''){
+                    currentr = 0
+                }else if(getproduct.ratingOne != ''){
+                    currentr = getproduct.ratingOne
+                }
+                countr = Number(currentr) + Number(1)
+                if(getproduct){
+                    updateproduct = await Product.product.findByIdAndUpdate(getorder.productId, {ratingOne: countr},{new:true})
+                }
             }else if(data.rating == 2){
-                updateproduct = await Product.product.findByIdAndUpdate(getproduct.productId, {ratingTwo: '2'},{new:true})
+                getproduct = await Product.product.findById(getorder.productId)
+                let countr
+                let currentr
+                if(getproduct.ratingTwo == ''){
+                    currentr = 0
+                }else if(getproduct.ratingTwo != ''){
+                    currentr = getproduct.ratingTwo
+                }
+                countr = Number(currentr) + Number(2)
+                if(getproduct){
+                    updateproduct = await Product.product.findByIdAndUpdate(getorder.productId, {ratingTwo: countr},{new:true})
+                }
             }else if(data.rating == 3){
-                updateproduct = await Product.product.findByIdAndUpdate(getproduct.productId, {ratingThree: '3'},{new:true})
+                getproduct = await Product.product.findById(getorder.productId)
+                let countr
+                let currentr
+                if(getproduct.ratingThree == ''){
+                    currentr = 0
+                }else if(getproduct.ratingThree != ''){
+                    currentr = getproduct.ratingThree
+                }
+                countr = Number(currentr) + Number(3)
+                if(getproduct){
+                    updateproduct = await Product.product.findByIdAndUpdate(getorder.productId, {ratingThree: countr},{new:true})
+                }
             }else if(data.rating == 4){
-                updateproduct = await Product.product.findByIdAndUpdate(getproduct.productId, {ratingFour: '4'},{new:true})
+                getproduct = await Product.product.findById(getorder.productId)
+                let countr
+                let currentr
+                if(getproduct.ratingFour == ''){
+                    currentr = 0
+                }else if(getproduct.ratingFour != ''){
+                    currentr = getproduct.ratingFour
+                }
+                countr = Number(currentr) + Number(4)
+                if(getproduct){
+                    updateproduct = await Product.product.findByIdAndUpdate(getorder.productId, {ratingFour: countr},{new:true})
+                }
             }else if(data.rating == 5){
-                updateproduct = await Product.product.findByIdAndUpdate(getproduct.productId, {ratingFive: '5'},{new:true})
+                getproduct = await Product.product.findById(getorder.productId)
+                let countr
+                let currentr
+                if(getproduct.ratingFive == ''){
+                    currentr = 0
+                }else if(getproduct.ratingFive != ''){
+                    currentr = getproduct.ratingFive
+                }
+                countr = Number(currentr) + Number(5)
+                if(getproduct){
+                    updateproduct = await Product.product.findByIdAndUpdate(getorder.productId, {ratingFive: countr},{new:true})
+                }
             }
             if(updateproduct){
                 bot.deleteMessage(chatId, messageId)
             }
-
         }
     }else{
 
@@ -658,13 +666,14 @@ async function sendProducts(chatId,selectcategoryid,message){
             }else if(avgr >0){
                 text = `Nomi: ${product.titleUz}\nMa'lumot: ${product.descriptionUz}\nBaho: ${avgr}⭐️\nNarhi: ${product.newprice}\n`
             }
-            }else if(userlang == 'ru'){
+        }else if(userlang == 'ru'){
             if(avgr === 0){
                 text = `Имя: ${product.titleRu}\nОписание: ${product.descriptionRu}\nОценка: ещё не получил отзывы\nЦена: ${product.newprice}\n`
             }else if(avgr >0){
                 text = `Имя: ${product.titleRu}\nОписание: ${product.descriptionRu}\nОценка: ${avgr}⭐️\nЦена: ${product.newprice}\n`
             }
-            }
+        }
+            // img = 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/1024px-Telegram_logo.svg.png'
             img = BASEURL + 'api/' + product.img
                 bot.sendPhoto(chatId, img, {
                     caption: text,
@@ -680,15 +689,21 @@ async function sendProducts(chatId,selectcategoryid,message){
                         ]
                         ]
                     }
-                },addmessage(message))
+                })
     }
-    for(j=0;j<products.length; j++){
-        getIdFromUser(products[j]) 
+    if(products.length>0){
+        for(j=0;j<products.length; j++){
+            getIdFromUser(products[j]) 
+        }
+    }else{
+        bot.sendMessage(chatId, currentLang.emptysector);
     }
 }
 
 async function selectCategory(chatId) {
-    const category = await Category.category.find()
+    const countc = await Category.category.countDocuments()
+    let cl = Number(countc) - 2
+    const category = await Category.category.find().sort({ _id: -1 }).limit(cl)
     let menu = [];
     let keyboard = [];
     menu.push([{'text': `${currentLang.back} ⬅️`}]);
@@ -703,7 +718,31 @@ async function selectCategory(chatId) {
     }
     keyboard.length /= 2;
     menu.push([{'text': `${currentLang.back} ⬅️`}]);
-    bot.sendMessage(chatId, `Category tanglang`,{
+    bot.sendMessage(chatId, currentLang.setCategory,{
+        reply_markup: JSON.stringify({
+            keyboard:  menu
+        })
+    })
+    selectcategorybool=true
+}
+
+async function selectCategories(chatId) {
+    const category = await Category.category.find().sort({ _id: 1 }).limit(2)
+    let menu = [];
+    let keyboard = [];
+    menu.push([{'text': `${currentLang.back} ⬅️`}]);
+    for (let i = 0; i < category.length; i++) {
+        keyboard.push(category[i].titleUz);
+    }
+    if(category.length % 2 == 1){
+        keyboard.push(`${currentLang.soon}`);
+    }
+    for (var i = 0; i < keyboard.length; i+=2) {
+        menu.push(keyboard[i/2] = [{'text': keyboard[i]}, {'text': keyboard[i+1]}]);
+    }
+    keyboard.length /= 2;
+    menu.push([{'text': `${currentLang.back} ⬅️`}]);
+    bot.sendMessage(chatId, currentLang.setCategory,{
         reply_markup: JSON.stringify({
             keyboard:  menu
         })
@@ -723,25 +762,6 @@ async function getidc(chatId,category,msg){
         selectcategoryid = cgid
         sendProducts(chatId,cgid,msg)
     }
-}
-
-bot.on('message', function (message) {
-    const chatId = message.chat.id
-    const txt = message.text
-    if(selectcategorybool){  
-        if(txt.includes("«") || txt.includes("-") || txt.includes("‹") || txt.includes("›") || txt.includes("»") || txt.includes("hammasini korish")){
-
-        }else{
-            getidc(chatId,txt,message)
-        }
-    }
-    if (text==kb.back.backButton || text==kb.home.setting || text==kb.home.services || text==kb.services.products || text==kb.fullname.fullnameUpdate || text==kb.address.addressUpdate) {
-        checkregistrationuser(chatId,msg)
-    }
-});
-
-async function addmessage(msg){
-    const messagec = await Smmember.smmember.create({chatId:msg.chat.id,messageId: msg.message_id,text:JSON.stringify(msg)})
 }
 
 module.exports.bot = bot;

@@ -6,7 +6,6 @@ const UserSchema = new Schema({
     role:{type:String},
     fish:{type:String},
     categoryId:{type:String},
-    subcategoryId:{type:String},
     phone:{type:String}
 }, { timestamps: { createdAt: 'createDate', updatedAt: 'updatedDate' } })
 
@@ -37,22 +36,31 @@ const OrderSchema = new Schema({
     newprice:{type:Number},
     messageId:{type:String},
     status:{type:String},
-    ratingstatus:{type:String},
     userName:{type:String},
     categoryName:{type:String},
     productName:{type:String}
 }, { timestamps: { createdAt: 'createDate', updatedAt: 'updatedDate' } })
 
+const HistorySchema = new Schema({
+    orderId:{type:String},
+    userId:{type:String},
+    memberId:{type:String},
+    categoryId:{type:String},
+    productId:{type:String},
+    qty:{type:Number},
+    price:{type:Number},
+    newprice:{type:Number},
+    messageId:{type:String},
+    status:{type:String},
+    userName:{type:String},
+    categoryName:{type:String},
+    productName:{type:String},
+    userPhone:{type:String}
+}, { timestamps: { createdAt: 'createDate', updatedAt: 'updatedDate' } })
+
 const CategorySchema =  new Schema({
     titleUz:{type:String},
     titleRu:{type:String}
-}, { timestamps: { createdAt: 'createDate', updatedAt: 'updatedDate' } })
-
-const SubCategorySchema = new Schema({
-    subcategoryId:{type:String},
-    titleUz:{type:String},
-    titleRu:{type:String},
-    categoryId:{type:String}
 }, { timestamps: { createdAt: 'createDate', updatedAt: 'updatedDate' } })
 
 const ProductSchema = new Schema({
@@ -75,18 +83,6 @@ const ProductSchema = new Schema({
     categoryId:{type:String}
 }, { timestamps: { createdAt: 'createDate', updatedAt: 'updatedDate' } })
 
-const ServiceSchema = new Schema({
-    titleUz:{type:String},
-    titleRu:{type:String},
-    descriptionUz:{type:String},
-    descriptionRu:{type:String},
-    price:{type:Number},
-    img:{type:String},
-    rating:{type:Number},
-    categoryId:{type:String},
-    subcategoryId:{type:String}
-}, { timestamps: { createdAt: 'createDate', updatedAt: 'updatedDate' } })
-
 const BotLanguageSchema = new Schema({
     uztitle:{type:String},
     rutitle:{type:String}
@@ -105,10 +101,9 @@ module.exports.user        = model('User', UserSchema)
 module.exports.member      = model('Member',MemberSchema)
 module.exports.smmember    = model('SendMessage',SendMessageSchema)
 module.exports.order       = model('Order',OrderSchema)
+module.exports.history       = model('History',HistorySchema)
 module.exports.category    = model('Category', CategorySchema)
-module.exports.subcategory = model("SubCategory", SubCategorySchema)
 module.exports.product     = model('Product', ProductSchema)
-module.exports.service     = model('Service', ServiceSchema)
 module.exports.botlanguage = model('BotLanguage',BotLanguageSchema)
 module.exports.language    = model('Language',LanguageSchema)
 module.exports.appsetting  = model('AppSetting', AppSchema)

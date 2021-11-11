@@ -19,7 +19,6 @@ class OrderController{
     }
     
     async getallorders(req,res,next){
-
         let {categoryId,user,status} = req.query
         let orders
         if (!categoryId && !user && !status) {
@@ -34,31 +33,20 @@ class OrderController{
         if (categoryId && user && status) {
             orders = await Order.order.find({categoryId: categoryId, userId: user, status: status}).sort({ _id: -1 })
         }
-        let lists = []
-        if(orders.length>0){
-            for(let j=0;j<orders.length; j++){
-                const getcategory = await Category.category.findById(orders[j].categoryId)
-                const getproduct = await Product.product.findById(orders[j].productId)
-                const getuser = await User.user.findById(orders[j].userId)
-                console.log(getcategory)
-                console.log(getcategory)
-                console.log(getcategory)
-            }
-        }else{
-            console.log('net')
-        }
-
         return res.json(orders)
 
     }
     
     async updateorder(req,res,next){
-        const {id, productId, chatId, status, ratingstatus} = req.body
+        const {id, productId, chatId, status} = req.body
         const updateproduct = await Order.order.findByIdAndUpdate(id, {status},{new:true})
-        if(status == 4 && ratingstatus == 0){
-            ratingServiceSendMessage(productId, chatId, id)
+        const getmember = await Member.member.findOne({chatId:chatId})
+        if(getmember){
+            if(status == 4){
+                ratingServiceSendMessage(productId, chatId, id, getmember.lang)
+            }
+            return res.json(updateproduct)
         }
-        return res.json(updateproduct)
     }
 
     async deleteorder(req,res,next){
