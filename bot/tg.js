@@ -699,26 +699,48 @@ async function sendProducts(chatId,selectcategoryid,message){
 async function selectCategory(chatId) {
     const countc = await Category.category.countDocuments()
     let cl = Number(countc) - 2
-    const category = await Category.category.find().sort({ _id: -1 }).limit(cl)
+    console.log(userlang)
+    const category = await Category.category.find({}).sort({ _id: -1 }).limit(cl)
+    console.log(category)
     let menu = [];
     let keyboard = [];
-    menu.push([{'text': `${currentLang.back} ⬅️`}]);
-    for (let i = 0; i < category.length; i++) {
-        keyboard.push(category[i].titleUz);
-    }
-    if(category.length % 2 == 1){
-        keyboard.push(`${currentLang.soon}`);
-    }
-    for (var i = 0; i < keyboard.length; i+=2) {
-        menu.push(keyboard[i/2] = [{'text': keyboard[i]}, {'text': keyboard[i+1]}]);
-    }
-    keyboard.length /= 2;
-    menu.push([{'text': `${currentLang.back} ⬅️`}]);
-    bot.sendMessage(chatId, currentLang.setCategory,{
-        reply_markup: JSON.stringify({
-            keyboard:  menu
+    if(userlang == 'ru'){
+        menu.push([{'text': `${currentLang.back} ⬅️`}]);
+        for (let i = 0; i < category.length; i++) {
+            keyboard.push(category[i].titleRu);
+        }
+        if(category.length % 2 == 1){
+            keyboard.push(`${currentLang.soon}`);
+        }
+        for (var i = 0; i < keyboard.length; i+=2) {
+            menu.push(keyboard[i/2] = [{'text': keyboard[i]}, {'text': keyboard[i+1]}]);
+        }
+        keyboard.length /= 2;
+        menu.push([{'text': `${currentLang.back} ⬅️`}]);
+        bot.sendMessage(chatId, currentLang.setCategory,{
+            reply_markup: JSON.stringify({
+                keyboard:  menu
+            })
         })
-    })
+    }else if(userlang == 'uz'){
+        menu.push([{'text': `${currentLang.back} ⬅️`}]);
+        for (let i = 0; i < category.length; i++) {
+            keyboard.push(category[i].titleUz);
+        }
+        if(category.length % 2 == 1){
+            keyboard.push(`${currentLang.soon}`);
+        }
+        for (var i = 0; i < keyboard.length; i+=2) {
+            menu.push(keyboard[i/2] = [{'text': keyboard[i]}, {'text': keyboard[i+1]}]);
+        }
+        keyboard.length /= 2;
+        menu.push([{'text': `${currentLang.back} ⬅️`}]);
+        bot.sendMessage(chatId, currentLang.setCategory,{
+            reply_markup: JSON.stringify({
+                keyboard:  menu
+            })
+        })
+    }
     selectcategorybool=true
 }
 
@@ -726,23 +748,43 @@ async function selectCategories(chatId) {
     const category = await Category.category.find().sort({ _id: 1 }).limit(2)
     let menu = [];
     let keyboard = [];
-    menu.push([{'text': `${currentLang.back} ⬅️`}]);
-    for (let i = 0; i < category.length; i++) {
-        keyboard.push(category[i].titleUz);
-    }
-    if(category.length % 2 == 1){
-        keyboard.push(`${currentLang.soon}`);
-    }
-    for (var i = 0; i < keyboard.length; i+=2) {
-        menu.push(keyboard[i/2] = [{'text': keyboard[i]}, {'text': keyboard[i+1]}]);
-    }
-    keyboard.length /= 2;
-    menu.push([{'text': `${currentLang.back} ⬅️`}]);
-    bot.sendMessage(chatId, currentLang.setCategory,{
-        reply_markup: JSON.stringify({
-            keyboard:  menu
+    if(userlang == 'ru'){
+        menu.push([{'text': `${currentLang.back} ⬅️`}]);
+        for (let i = 0; i < category.length; i++) {
+            keyboard.push(category[i].titleRu);
+        }
+        if(category.length % 2 == 1){
+            keyboard.push(`${currentLang.soon}`);
+        }
+        for (var i = 0; i < keyboard.length; i+=2) {
+            menu.push(keyboard[i/2] = [{'text': keyboard[i]}, {'text': keyboard[i+1]}]);
+        }
+        keyboard.length /= 2;
+        menu.push([{'text': `${currentLang.back} ⬅️`}]);
+        bot.sendMessage(chatId, currentLang.setCategory,{
+            reply_markup: JSON.stringify({
+                keyboard:  menu
+            })
         })
-    })
+    }else if(userlang == 'uz'){
+        menu.push([{'text': `${currentLang.back} ⬅️`}]);
+        for (let i = 0; i < category.length; i++) {
+            keyboard.push(category[i].titleUz);
+        }
+        if(category.length % 2 == 1){
+            keyboard.push(`${currentLang.soon}`);
+        }
+        for (var i = 0; i < keyboard.length; i+=2) {
+            menu.push(keyboard[i/2] = [{'text': keyboard[i]}, {'text': keyboard[i+1]}]);
+        }
+        keyboard.length /= 2;
+        menu.push([{'text': `${currentLang.back} ⬅️`}]);
+        bot.sendMessage(chatId, currentLang.setCategory,{
+            reply_markup: JSON.stringify({
+                keyboard:  menu
+            })
+        })
+    }
     selectcategorybool=true
 }
 
