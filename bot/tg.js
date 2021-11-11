@@ -18,8 +18,6 @@ let currentLang
 async function getmemberlang(chatId,msg) {
     let langs
     languages = await Member.member.findOne({chatId: chatId})
-    if(languages){
-
     if(languages == null){
         langs = 'uz'
         userlang = langs
@@ -177,15 +175,12 @@ async function getmemberlang(chatId,msg) {
             ]
         }
     } 
-
-}
 await Promise.resolve();
 };
 async function msgworking(chatId,msg) {
     if(currentLang == undefined){
         getmemberlang(chatId,msg)
     }else{
-        console.log(msg.text)
         if (msg.text == '/start'){
             registrationuser(chatId,msg)
         }
@@ -254,7 +249,6 @@ bot.onText(/workingbotnow/, (msg) => {
 });
 // bot.on("polling_error", (err) => console.log(err));
 bot.on('message', msg=>{
-        const text = msg;
         const chatId = msg.chat.id
         getmemberlang(chatId,msg)
 })
@@ -300,8 +294,6 @@ async function registrationuser(chatId,msg){
     const id = chatId
     const condidate = await Member.member.findOne({chatId: id})
     if(condidate){
-        console.log(condidate.lang)
-        console.log(userlang)
         if(condidate.phone !== ''){
             bot.sendMessage(chatId, `${currentLang.helloagain} ${msg.from.first_name + ' ' + msg.from.last_name}`,{
                 reply_markup: {
