@@ -699,9 +699,7 @@ async function sendProducts(chatId,selectcategoryid,message){
 async function selectCategory(chatId) {
     const countc = await Category.category.countDocuments()
     let cl = Number(countc) - 2
-    console.log(userlang)
     const category = await Category.category.find({}).sort({ _id: -1 }).limit(cl)
-    console.log(category)
     let menu = [];
     let keyboard = [];
     if(userlang == 'ru'){
