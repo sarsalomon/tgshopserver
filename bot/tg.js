@@ -44,7 +44,7 @@ async function getmemberlang(chatId,msg) {
             "back" :'Orqaga',
             "setLang" : 'Tilni tanlang',
             "updatePhone" : 'Telefon raqam yangilandi',
-            "add" : 'Qo`shish',
+            "add" : 'Mahsulot qo`shish',
             "added" : 'Qo`shildi',
             "successreg":'Rahmat ro`yxatdan o`tish tugadi',
             "delete" : 'O`chirish',
@@ -118,7 +118,7 @@ async function getmemberlang(chatId,msg) {
             "back" :'Назад',
             "setLang" : 'Выберите язык',
             "updatePhone" : 'Номер телефона обновлен',
-            "add" : 'Добавлять',
+            "add" : 'Товар добавлень',
             "added": 'Добавлен',
             "successreg":'Спасибо, регистрация окончена',
             "delete" : 'Удалить',
@@ -419,6 +419,7 @@ async function addOrder(userId, queryId, productId, messageId, chatId){
         const findproduct = await Product.product.findById(productId)
         const findcategory = await Category.category.findById(findproduct.categoryId)
         const finduser = await User.user.findById(findproduct.userId)
+        const getmember = await Member.member.findOne({chatId:userId})
         const order = await Order.order.create({
             userId: findproduct.userId,
             memberId: userId,
@@ -432,7 +433,8 @@ async function addOrder(userId, queryId, productId, messageId, chatId){
             ratingstatus: '0',
             userName: finduser.fish,
             categoryName: findcategory.titleUz + '-' + findcategory.titleRu,
-            productName: findproduct.titleUz + '-' + findproduct.titleRu
+            productName: findproduct.titleUz + '-' + findproduct.titleRu,
+            userPhone: getmember.phone
         })
         if(order){
             bot.editMessageReplyMarkup({
@@ -451,7 +453,7 @@ async function addOrder(userId, queryId, productId, messageId, chatId){
                     chat_id: chatId, 
                     message_id: messageId
                 });
-            bot.answerCallbackQuery({callback_query_id: queryId, text: `${currentLang.added} ${productId}`});
+            bot.answerCallbackQuery({callback_query_id: queryId, text: `${currentLang.added}`});
         }
     }
 }

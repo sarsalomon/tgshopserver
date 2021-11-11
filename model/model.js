@@ -38,7 +38,8 @@ const OrderSchema = new Schema({
     status:{type:String},
     userName:{type:String},
     categoryName:{type:String},
-    productName:{type:String}
+    productName:{type:String},
+    userPhone:{type:String}
 }, { timestamps: { createdAt: 'createDate', updatedAt: 'updatedDate' } })
 
 const HistorySchema = new Schema({
