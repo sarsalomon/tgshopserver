@@ -539,7 +539,7 @@ async  function ratingServiceSendMessage(productId, chatId, orderId){
             text = `Имя: ${product.titleRu}\nОписание: ${product.descriptionRu}\nОценка: ${avgr}⭐️\nЦена: ${product.newprice}\n`
         }
     }
-    img = BASEURL + product.product
+    img = BASEURL + 'api/' + product.product
     bot.sendPhoto(chatId, img, {
         caption: text,
         reply_markup:{
@@ -665,7 +665,7 @@ async function sendProducts(chatId,selectcategoryid,message){
                 text = `Имя: ${product.titleRu}\nОписание: ${product.descriptionRu}\nОценка: ${avgr}⭐️\nЦена: ${product.newprice}\n`
             }
             }
-            img = BASEURL + product.img
+            img = BASEURL + 'api/' + product.img
                 bot.sendPhoto(chatId, img, {
                     caption: text,
                     reply_markup:{
